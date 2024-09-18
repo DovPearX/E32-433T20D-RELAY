@@ -2,12 +2,25 @@
 
 void setup() {
 
+  pinMode(8, OUTPUT);
+  pinMode(7, INPUT);
+
   Serial.begin(9600);
 
-  Serial1.begin(9600);
+  Serial1.begin(9600, SERIAL_8N1, 21, 20);
 }
 
 void loop() {
+
+  if (digitalRead(7) == LOW) {
+
+    digitalWrite(8, HIGH);
+
+  } else {
+
+    digitalWrite(8, LOW);
+
+  }
 
   if (Serial.available()) {      // If anything comes in Serial (USB),
 
