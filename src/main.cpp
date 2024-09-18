@@ -33,6 +33,7 @@ void loop() {
 
   // Check if there's data available on Serial1
   if (Serial1.available()) {
+    for(int i = 0; i < 10; i++) {
     char buffer[64]; // Buffer to hold incoming data
     int len = Serial1.readBytesUntil('\n', buffer, sizeof(buffer) - 1);
     buffer[len] = '\0'; // Null-terminate the string
