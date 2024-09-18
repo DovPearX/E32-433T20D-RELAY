@@ -17,7 +17,7 @@ def merge_bin(source, target, env):
                 "$PYTHONEXE",
                 "$OBJCOPY",
                 "--chip",
-                BOARD_CONFIG.get("build.mcu", "esp32"),
+                BOARD_CONFIG.get("build.mcu", "esp32c3"),
                 "merge_bin",
                 "--fill-flash-size",
                 BOARD_CONFIG.get("upload.flash_size", "4MB"),
