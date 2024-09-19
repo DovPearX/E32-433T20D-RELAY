@@ -20,6 +20,7 @@ void reciveTask(void *arg) {
         if(e32ttl100.available()) {
             ResponseContainer rc = e32ttl100.receiveMessageUntil('\n');
             if(rc.data == "SINGLE")  {
+                blink_led_indicator();
                 e32ttl100.sendMessage("PING");
             } else {
                 if(rc.data == "PING")  {
