@@ -42,14 +42,14 @@ void doclickaction() {
 }
 
 void dolongclickaction() {
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    autosendActive = !autosendActive;
-    printf("Autosend active: %s\n", autosendActive ? "true" : "false");
     if(autosendActive) {
         blink_led_indicator_double();
     } else {
         blink_led_indicator();
     }
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    autosendActive = !autosendActive;
+    printf("Autosend active: %s\n", autosendActive ? "true" : "false");
 }
 
 void buttonTask(void *arg) {
