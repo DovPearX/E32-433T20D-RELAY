@@ -5,40 +5,10 @@
 #define PIN_RX 20
 #define PIN_TX 21
 #define PIN_AUX 7
-#define PIN_M0 6
-#define PIN_M1 5
+#define PIN_M0 5
+#define PIN_M1 6
 
 LoRa_E32 e32ttl100(PIN_TX, PIN_RX, &Serial1, PIN_AUX, PIN_M0, PIN_M1, UART_BPS_RATE_9600, SERIAL_8N1);
-
-void blink_led_indicator();
-void blink_led_indicator_double();
-
-bool dontBlinkSingle = false;
-void reciveTask(void *arg) {
-    for (;;) 
-    {  
-        if(e32ttl100.available()) {
-            ResponseContainer rc = e32ttl100.receiveMessageUntil('\n');
-            if(rc.data == "SINGLE")  {
-                blink_led_indicator();
-                e32ttl100.sendMessage("PING");
-            } else {
-                if(rc.data == "PING")  {
-                    blink_led_indicator_double();
-                    dontBlinkSingle = true;
-                }
-                if(Serial) {
-                    Serial.println(rc.data);
-                }   
-            } 
-            if(!dontBlinkSingle) {
-                blink_led_indicator();
-            }
-        }
-        vTaskDelay(5);
-    }
-}
-
 
 void radio_init() {
     pinMode(PIN_AUX, INPUT);
@@ -68,5 +38,4 @@ void radio_init() {
     Serial.println(rs.code);
     c.close();
 
-    xTaskCreatePinnedToCore(reciveTask, "reciveTask", 4096, NULL, 3, NULL, tskNO_AFFINITY);
 }
