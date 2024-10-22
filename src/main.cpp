@@ -4,30 +4,28 @@
 #define PIN_BUTTON 10
 #define PIN_LED_INDICATOR 8
 #define RELAY_PIN 3
-#define TIMEOUT 3000  // 3 sekundy
-#define DEBOUNCE_DELAY 50 // Opóźnienie debouncingu w milisekundach
-#define SEND_DELAY 1000  // Opóźnienie między wysyłaniem wiadomości w milisekundach
-
-#define SENDER  // Użyj tego, aby skompilować jako nadajnik
+#define TIMEOUT 3000
+#define DEBOUNCE_DELAY 50
+#define SEND_DELAY 1000
 
 bool relayState = HIGH;
-unsigned long lastCommandTime = 0; // Czas ostatniej komendy
-unsigned long lastButtonPressTime = 0; // Czas ostatniego wciśnięcia przycisku
-unsigned long lastSendTime = 0; // Czas ostatniego wysłania wiadomości
+unsigned long lastCommandTime = 0;
+unsigned long lastButtonPressTime = 0;
+unsigned long lastSendTime = 0;
 
 void relay_on() {
     if (relayState == HIGH) {
-        digitalWrite(RELAY_PIN, LOW); // Włącz przekaźnik (LOW)
+        digitalWrite(RELAY_PIN, LOW);
         relayState = LOW;
         printf("(%lu ms) Relay ON\n", lastCommandTime);
     }
 
-    lastCommandTime = millis(); // Aktualizuj czas ostatniej komendy
+    lastCommandTime = millis();
 }
 
 void relay_off() {
     if (relayState == LOW) {
-        digitalWrite(RELAY_PIN, HIGH); // Wyłącz przekaźnik (HIGH)
+        digitalWrite(RELAY_PIN, HIGH);
         relayState = HIGH;
         printf("(%lu ms) Relay OFF\n", millis());
     }
@@ -39,19 +37,18 @@ void buttonTask(void *arg) {
         unsigned long currentTime = millis();
 
         if (buttonState == LOW && (currentTime - lastButtonPressTime > DEBOUNCE_DELAY)) {
-            relay_on(); // Włącz przekaźnik
+            relay_on();
 
             if (currentTime - lastSendTime > SEND_DELAY) {
-                e32ttl100.sendMessage("RELAY_ON\n"); // Wysłanie komunikatu
-                lastSendTime = currentTime; // Zaktualizuj czas ostatniego wysłania
+                e32ttl100.sendMessage("RELAY_ON\n");
+                lastSendTime = currentTime;
             }
-            lastButtonPressTime = currentTime; // Zaktualizuj czas ostatniego wciśnięcia
+            lastButtonPressTime = currentTime;
         } else if (buttonState == HIGH) {
-            // Gdy przycisk jest zwolniony, zresetuj ostatni czas przycisku
             lastButtonPressTime = currentTime;
         }
 
-        vTaskDelay(10); // Zmniejsz opóźnienie w celu poprawy responsywności
+        vTaskDelay(10);
     }
 }
 
@@ -65,26 +62,25 @@ void receiveTask(void *arg) {
                 printf("Received: %s\n", receivedMessage.c_str());
 
                 if (receivedMessage == "RELAY_ON") {
-                    relay_on(); // Włącz przekaźnik i zresetuj licznik
+                    relay_on();
                 }
 
                 if (receivedMessage == "RELAY_OFF") {
-                    relay_off(); // Wyłącz przekaźnik
+                    relay_off();
                 }
             }
         }
 
-        vTaskDelay(5); // Krótkie opóźnienie, aby nie przeciążać CPU
+        vTaskDelay(5);
     }
 }
 
 void timeoutTask(void *arg) {
     for (;;) {
-        // Wyłącz przekaźnik, jeśli nie otrzymano komendy przez TIMEOUT
         if (relayState == LOW && (millis() - lastCommandTime > TIMEOUT)) {
-            relay_off(); // Wyłącz przekaźnik po upływie czasu
+            relay_off();
         }
-        vTaskDelay(100); // Opóźnienie w celu zmniejszenia obciążenia CPU
+        vTaskDelay(100);
     }
 }
 
@@ -95,17 +91,15 @@ void setup() {
     pinMode(PIN_LED_INDICATOR, OUTPUT);
     pinMode(RELAY_PIN, OUTPUT);
 
-    digitalWrite(RELAY_PIN, HIGH); // Domyślnie przekaźnik jest wyłączony (HIGH)
+    digitalWrite(RELAY_PIN, HIGH);
     digitalWrite(PIN_LED_INDICATOR, LOW);
 
-    radio_init(); // Inicjalizacja radia
+    radio_init();
 
-    // Utworzenie tasków
     xTaskCreatePinnedToCore(buttonTask, "buttonTask", 2048, NULL, 1, NULL, 0);
     xTaskCreatePinnedToCore(receiveTask, "receiveTask", 4096, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(timeoutTask, "timeoutTask", 2048, NULL, 1, NULL, 0);
 }
 
 void loop() {
-    // Pusty loop, logika działa w taskach FreeRTOS
 }
