@@ -58,13 +58,6 @@
 
 #### Key Configuration Details
 
-- **Pins for LoRa Module**:
-  - RX: GPIO `20`
-  - TX: GPIO `21`
-  - AUX: GPIO `7`
-  - M0: GPIO `5`
-  - M1: GPIO `6`
-
 - **LoRa Configuration Parameters**:
   - Address: `0x0100`
   - Channel: `0x19` (default channel for communication)
